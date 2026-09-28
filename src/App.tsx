@@ -10,7 +10,7 @@ export function App() {
   return (
     <div className="app">
       <main className="app-main">
-        {tab === "translate" ? <TranslatePage /> : null}
+        {tab === "translate" ? <TranslatePage onOpenSettings={() => setTab("settings")} /> : null}
         {tab === "vocab" ? <VocabPage /> : null}
         {tab === "settings" ? <SettingsPage /> : null}
       </main>

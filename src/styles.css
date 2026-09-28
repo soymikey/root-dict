@@ -93,8 +93,9 @@ select:focus-visible {
 
 .page-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.25rem 0.75rem;
   min-height: 2.75rem;
   margin-bottom: 0.75rem;
 }
@@ -265,6 +266,129 @@ select:focus-visible {
 
 .button:disabled {
   opacity: 0.45;
+}
+
+.text-button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.35rem 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.composer textarea {
+  width: 100%;
+  min-height: 8.5rem;
+  margin-top: 0.35rem;
+  padding: 0.9rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  resize: vertical;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+
+.direction {
+  margin: 0.75rem 0 0;
+  color: var(--secondary);
+  font-size: 0.95rem;
+}
+
+.alert {
+  margin: 0.85rem 0 0;
+  color: var(--danger);
+}
+
+.result {
+  margin-top: 1.25rem;
+}
+
+.result h2,
+.detail h2 {
+  margin: 0.2rem 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.result-kicker {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.source {
+  margin: 0.45rem 0 0;
+  color: var(--secondary);
+}
+
+.translation,
+.ipa {
+  margin: 0.35rem 0 0;
+}
+
+.translation {
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.candidate-list {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  background: var(--surface);
+}
+
+.candidate-list button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 0.9rem;
+  border: 0;
+  border-bottom: 0.5px solid var(--separator);
+  background: transparent;
+  text-align: left;
+}
+
+.candidate-list li:last-child button {
+  border-bottom: 0;
+}
+
+.candidate-list button[aria-pressed="true"] {
+  background: var(--fill);
+}
+
+.candidate-list span {
+  color: var(--secondary);
+  font-size: 0.95rem;
+}
+
+.detail {
+  margin-top: 1rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
