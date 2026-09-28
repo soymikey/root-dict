@@ -292,11 +292,20 @@ select:focus-visible {
   border: 0;
 }
 
+.composer {
+  position: relative;
+  display: block;
+}
+
+.composer label {
+  display: block;
+}
+
 .composer textarea {
   width: 100%;
   min-height: 8.5rem;
   margin-top: 0.35rem;
-  padding: 0.9rem;
+  padding: 0.9rem 3.4rem 0.9rem 0.9rem;
   border: 0;
   border-radius: 0.9rem;
   background: var(--surface);
@@ -304,6 +313,53 @@ select:focus-visible {
   resize: vertical;
   font-size: 1.0625rem;
   line-height: 1.45;
+}
+
+.mic-button {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+}
+
+.mic-button svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.mic-button.is-listening {
+  background: var(--fill);
+  color: var(--danger);
+}
+
+.segmented {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.segmented button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--fill);
+  color: var(--text);
 }
 
 .direction {

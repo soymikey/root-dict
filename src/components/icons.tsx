@@ -70,6 +70,29 @@ export function SettingsIcon(props: IconProps) {
   );
 }
 
+export function MicIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <rect x="9" y="3.5" width="6" height="10" rx="3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M7 11.5a5 5 0 0 0 10 0M12 16.5V20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </IconBase>
+  );
+}
+
+export function StopIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor" />
+    </IconBase>
+  );
+}
+
 export function BackIcon(props: IconProps) {
   return (
     <IconBase {...props}>

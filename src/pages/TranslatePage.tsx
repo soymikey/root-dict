@@ -1,20 +1,64 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { MicIcon, StopIcon } from "../components/icons";
 import { PageHeader } from "../components/PageHeader";
 import { hasApiKey, getApiKey } from "../lib/apiKey";
 import { classifyInput } from "../lib/classify";
+import {
+  browserRecognition,
+  speechErrorMessage,
+  type RecognitionController,
+  type RecognitionSession,
+} from "../lib/speech";
 import { OpenAIError, translateInput, type CandidatesResult, type TranslationResult } from "../lib/translate";
+
+type SpeechLang = "zh-CN" | "en-US";
 
 type TranslatePageProps = {
   onOpenSettings: () => void;
+  createRecognition?: () => RecognitionController | null;
 };
 
-export function TranslatePage({ onOpenSettings }: TranslatePageProps) {
+export function TranslatePage({ onOpenSettings, createRecognition }: TranslatePageProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [speechLang, setSpeechLang] = useState<SpeechLang>("zh-CN");
   const [error, setError] = useState("");
   const [result, setResult] = useState<TranslationResult | null>(null);
+  const sessionRef = useRef<RecognitionSession | null>(null);
   const classified = classifyInput(text);
   const keyReady = hasApiKey();
+
+  function toggleListening() {
+    if (listening) {
+      sessionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const controller = (createRecognition ?? browserRecognition)();
+    if (!controller) {
+      setError(speechErrorMessage("not-supported"));
+      return;
+    }
+    setError("");
+    setListening(true);
+    sessionRef.current = controller.start({
+      lang: speechLang,
+      onResult: (transcript) => {
+        setText(transcript);
+      },
+      onError: (code) => {
+        if (code === "aborted") {
+          return;
+        }
+        setListening(false);
+        setError(speechErrorMessage(code));
+      },
+      onEnd: () => {
+        setListening(false);
+      },
+    });
+  }
 
   async function translate() {
     if (!hasApiKey()) {
@@ -53,15 +97,39 @@ export function TranslatePage({ onOpenSettings }: TranslatePageProps) {
           </button>
         }
       />
-      <label className="composer">
-        <span className="visually-hidden">翻译内容</span>
-        <textarea
-          value={text}
-          placeholder="输入单词、短语或句子"
-          onChange={(event) => setText(event.target.value)}
-        />
-      </label>
+      <div className="composer">
+        <label>
+          <span className="visually-hidden">翻译内容</span>
+          <textarea
+            value={text}
+            placeholder="输入单词、短语或句子"
+            onChange={(event) => setText(event.target.value)}
+          />
+        </label>
+        <button
+          type="button"
+          className={listening ? "mic-button is-listening" : "mic-button"}
+          aria-pressed={listening}
+          aria-label={listening ? "停止语音输入" : "语音输入"}
+          onClick={toggleListening}
+        >
+          {listening ? <StopIcon /> : <MicIcon />}
+        </button>
+      </div>
+      <div className="segmented" role="group" aria-label="语音语言">
+        <button type="button" aria-pressed={speechLang === "zh-CN"} onClick={() => setSpeechLang("zh-CN")}>
+          中文
+        </button>
+        <button type="button" aria-pressed={speechLang === "en-US"} onClick={() => setSpeechLang("en-US")}>
+          English
+        </button>
+      </div>
       <p className="direction">{classified.direction}</p>
+      {listening ? (
+        <p className="status-line" role="status">
+          正在聆听
+        </p>
+      ) : null}
       <div className="button-row">
         <button type="button" className="button secondary" onClick={clear}>
           清空
