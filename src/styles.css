@@ -181,6 +181,92 @@ select:focus-visible {
   height: 1.5rem;
 }
 
+.group {
+  margin: 1.25rem 0 0;
+}
+
+.group h2 {
+  margin: 0 0 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--secondary);
+}
+
+.group p,
+.hint,
+.status-line {
+  margin: 0.45rem 0 0;
+  color: var(--secondary);
+  font-size: 0.95rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+}
+
+.field span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field input,
+.field textarea,
+.search-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 1.0625rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.button {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--fill);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button.primary {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.button.primary:active:not(:disabled) {
+  background: var(--accent-pressed);
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--secondary);
+}
+
+.button:disabled {
+  opacity: 0.45;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
