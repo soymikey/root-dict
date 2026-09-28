@@ -15,7 +15,7 @@ export function App() {
         {tab === "translate" ? (
           <TranslatePage onOpenSettings={() => setTab("settings")} onOpenWord={setStoryWord} />
         ) : null}
-        {tab === "vocab" ? <VocabPage /> : null}
+        {tab === "vocab" ? <VocabPage onOpenWord={setStoryWord} /> : null}
         {tab === "settings" ? <SettingsPage /> : null}
       </main>
       {storyWord ? <StoryPage word={storyWord} onBack={() => setStoryWord(null)} /> : <TabBar tab={tab} onChange={setTab} />}

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearApiKey, setApiKey } from "../lib/apiKey";
@@ -53,7 +53,7 @@ describe("StoryPage", () => {
     expect(screen.getByText("菠萝")).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "重新生成" }));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     await userEvent.click(screen.getByRole("button", { name: "返回" }));
     expect(onBack).toHaveBeenCalled();
   });
@@ -79,5 +79,24 @@ describe("StoryPage", () => {
     await user.click(screen.getByRole("button", { name: "朗读 apple" }));
     expect(speak).toHaveBeenCalledWith(expect.objectContaining({ text: "apple", lang: "en" }), expect.any(Object));
     expect(screen.getByRole("button", { name: "apple" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("saves the card locally and reopens it without a new request", async () => {
+    const user = userEvent.setup();
+    setApiKey("sk-test");
+    const fetchMock = mockStory();
+    vi.stubGlobal("fetch", fetchMock);
+    const first = render(<StoryPage word="apple" onBack={() => undefined} />);
+    await screen.findByRole("region", { name: "词源" });
+    await user.click(screen.getByRole("button", { name: "保存" }));
+    expect(await screen.findByRole("button", { name: "已保存" })).toBeDisabled();
+    first.unmount();
+
+    fetchMock.mockClear();
+    clearApiKey();
+    render(<StoryPage word="Apple" onBack={() => undefined} />);
+    expect(await screen.findByText("想象苹果滚进抽屉。")).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "已保存" })).toBeDisabled();
   });
 });

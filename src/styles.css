@@ -578,6 +578,48 @@ select:focus-visible {
   background: var(--fill);
 }
 
+.vocab-list {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+
+.vocab-row {
+  padding: 0.8rem 0;
+  border-top: 0.5px solid var(--separator);
+}
+
+.vocab-open {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.vocab-row p {
+  margin: 0.1rem 0 0.45rem;
+  color: var(--secondary);
+}
+
+.vocab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vocab-actions select {
+  min-height: 2.75rem;
+  min-width: 6.5rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: var(--surface);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

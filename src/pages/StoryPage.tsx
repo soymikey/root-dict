@@ -5,6 +5,7 @@ import { OpenAIError } from "../lib/openai";
 import type { Speaker } from "../lib/pronounce";
 import { generateStory, type StoryPart, type WordStory } from "../lib/story";
 import { usePronunciation } from "../lib/usePronunciation";
+import { getSavedWord, saveWord, updateSavedStory } from "../lib/vocab";
 
 type StoryPageProps = {
   word: string;
@@ -17,15 +18,32 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [generation, setGeneration] = useState(0);
+  const [saved, setSaved] = useState(false);
   const { speaking, voiceError, speakText } = usePronunciation(speaker);
   const title = story?.word ?? word;
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (generation === 0) {
+        const existing = await getSavedWord(word);
+        if (cancelled) {
+          return;
+        }
+        if (existing) {
+          setStory(existing.story);
+          setSaved(true);
+          setError("");
+          setLoading(false);
+          return;
+        }
+      }
       if (!hasApiKey()) {
-        setStory(null);
-        setError("请先在设置中填写 API 密钥");
+        if (!cancelled) {
+          setStory(null);
+          setError("请先在设置中填写 API 密钥");
+          setLoading(false);
+        }
         return;
       }
       setLoading(true);
@@ -34,6 +52,11 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
         const next = await generateStory(getApiKey(), word);
         if (!cancelled) {
           setStory(next);
+          const existing = await getSavedWord(word);
+          if (existing) {
+            await updateSavedStory(word, next);
+            setSaved(true);
+          }
         }
       } catch (caught) {
         if (!cancelled) {
@@ -51,6 +74,16 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
       cancelled = true;
     };
   }, [word, generation]);
+
+  async function persist() {
+    if (!story || saved) {
+      return;
+    }
+    const outcome = await saveWord(story);
+    if (outcome === "saved" || outcome === "duplicate") {
+      setSaved(true);
+    }
+  }
 
   return (
     <section className="page story-page">
@@ -85,9 +118,12 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
       ) : null}
       {story ? <StoryBody story={story} speaking={speaking} onSpeak={speakText} /> : null}
       <div className="button-row">
+        <button type="button" className="button primary" onClick={() => void persist()} disabled={saved || !story || loading}>
+          {saved ? "已保存" : "保存"}
+        </button>
         <button
           type="button"
-          className="button primary"
+          className="button secondary"
           onClick={() => setGeneration((value) => value + 1)}
           disabled={loading || !hasApiKey()}
         >
