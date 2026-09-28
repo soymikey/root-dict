@@ -22,15 +22,7 @@ export type CandidatesResult = {
   candidates: Candidate[];
 };
 
-export type GlossResult = {
-  kind: "gloss";
-  word: string;
-  pos: string;
-  gloss: string;
-  ipa: string;
-};
-
-export type TranslationResult = SentenceResult | CandidatesResult | GlossResult;
+export type TranslationResult = SentenceResult | CandidatesResult;
 
 const SYSTEM = "你是中英理解式词典的翻译模块。只输出符合 schema 的 JSON。释义使用简体中文。";
 
@@ -41,17 +33,6 @@ const sentenceSchema = {
     translation: { type: "string" },
   },
   required: ["translation"],
-};
-
-const glossSchema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    pos: { type: "string" },
-    gloss: { type: "string" },
-    ipa: { type: "string" },
-  },
-  required: ["pos", "gloss", "ipa"],
 };
 
 const candidatesSchema = {
@@ -119,24 +100,7 @@ export async function translateInput(apiKey: string, raw: string): Promise<Trans
   }
 
   if (classified.kind === "en-word") {
-    const parsed = await requestStructured({
-      apiKey,
-      schemaName: "word_gloss",
-      schema: glossSchema,
-      system: SYSTEM,
-      user: `给出英文单词“${classified.text}”的美式音标、词性和核心简体中文释义。`,
-      parse: (value) => {
-        if (!isRecord(value)) {
-          throw new Error("invalid");
-        }
-        return {
-          pos: requiredText(value.pos),
-          gloss: requiredText(value.gloss),
-          ipa: requiredText(value.ipa),
-        };
-      },
-    });
-    return { kind: "gloss", word: classified.text, ...parsed };
+    throw new OpenAIError("英文单词请打开故事卡");
   }
 
   const target = classified.kind === "zh-sentence" ? "自然英文" : "简体中文";

@@ -62,9 +62,9 @@ describe("translateInput", () => {
 
   it("rejects an invalid payload and an unauthorized key", async () => {
     vi.stubGlobal("fetch", mockChat({ nope: true }));
-    await expect(translateInput("sk-test", "hello")).rejects.toBeInstanceOf(OpenAIError);
+    await expect(translateInput("sk-test", "Hello, world")).rejects.toBeInstanceOf(OpenAIError);
 
     vi.stubGlobal("fetch", mockChat({}, 401));
-    await expect(translateInput("sk-bad", "hello")).rejects.toMatchObject({ message: "API 密钥无效" });
+    await expect(translateInput("sk-bad", "Hello, world")).rejects.toMatchObject({ message: "API 密钥无效" });
   });
 });

@@ -9,16 +9,17 @@ import {
   type RecognitionController,
   type RecognitionSession,
 } from "../lib/speech";
-import { OpenAIError, translateInput, type CandidatesResult, type TranslationResult } from "../lib/translate";
+import { OpenAIError, translateInput, type TranslationResult } from "../lib/translate";
 
 type SpeechLang = "zh-CN" | "en-US";
 
 type TranslatePageProps = {
   onOpenSettings: () => void;
+  onOpenWord: (word: string) => void;
   createRecognition?: () => RecognitionController | null;
 };
 
-export function TranslatePage({ onOpenSettings, createRecognition }: TranslatePageProps) {
+export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition }: TranslatePageProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -67,6 +68,10 @@ export function TranslatePage({ onOpenSettings, createRecognition }: TranslatePa
     }
     if (classified.kind === "empty") {
       setError("请输入要翻译的内容");
+      return;
+    }
+    if (classified.kind === "en-word") {
+      onOpenWord(classified.text);
       return;
     }
     setLoading(true);
@@ -143,12 +148,18 @@ export function TranslatePage({ onOpenSettings, createRecognition }: TranslatePa
           {error}
         </p>
       ) : null}
-      {result ? <ResultView result={result} /> : null}
+      {result ? <ResultView result={result} onOpenWord={onOpenWord} /> : null}
     </section>
   );
 }
 
-function ResultView({ result }: { result: TranslationResult }) {
+function ResultView({
+  result,
+  onOpenWord,
+}: {
+  result: TranslationResult;
+  onOpenWord: (word: string) => void;
+}) {
   if (result.kind === "sentence") {
     return (
       <article className="result">
@@ -159,37 +170,13 @@ function ResultView({ result }: { result: TranslationResult }) {
     );
   }
 
-  if (result.kind === "gloss") {
-    return (
-      <article className="result">
-        <p className="result-kicker">单词</p>
-        <h2>{result.word}</h2>
-        <p className="ipa">{result.ipa}</p>
-        <p>
-          {result.pos} · {result.gloss}
-        </p>
-      </article>
-    );
-  }
-
-  return <CandidatesView result={result} />;
-}
-
-function CandidatesView({ result }: { result: CandidatesResult }) {
-  const [selected, setSelected] = useState(0);
-  const current = result.candidates[selected] ?? result.candidates[0];
-
   return (
     <div className="result">
       <p className="result-kicker">英文候选</p>
       <ul className="candidate-list">
-        {result.candidates.map((candidate, index) => (
+        {result.candidates.map((candidate) => (
           <li key={`${candidate.word}-${candidate.gloss}`}>
-            <button
-              type="button"
-              aria-pressed={index === selected}
-              onClick={() => setSelected(index)}
-            >
+            <button type="button" onClick={() => onOpenWord(candidate.word)}>
               <strong>{candidate.word}</strong>
               <span>
                 {candidate.pos} · {candidate.gloss}
@@ -198,14 +185,6 @@ function CandidatesView({ result }: { result: CandidatesResult }) {
           </li>
         ))}
       </ul>
-      {current ? (
-        <article className="detail" aria-label="候选详情">
-          <h2>{current.word}</h2>
-          <p>
-            {current.pos} · {current.gloss}
-          </p>
-        </article>
-      ) : null}
     </div>
   );
 }

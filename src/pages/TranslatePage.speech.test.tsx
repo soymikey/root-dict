@@ -31,7 +31,13 @@ describe("speech input", () => {
     const fake = installFake();
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    render(<TranslatePage onOpenSettings={() => undefined} createRecognition={() => fake.controller} />);
+    render(
+      <TranslatePage
+        onOpenSettings={() => undefined}
+        onOpenWord={() => undefined}
+        createRecognition={() => fake.controller}
+      />,
+    );
 
     await user.click(screen.getByRole("button", { name: "English" }));
     await user.click(screen.getByRole("button", { name: "语音输入" }));
@@ -52,7 +58,7 @@ describe("speech input", () => {
   it("explains unsupported browsers and denied permission without blocking typing", async () => {
     const user = userEvent.setup();
     const { unmount } = render(
-      <TranslatePage onOpenSettings={() => undefined} createRecognition={() => null} />,
+      <TranslatePage onOpenSettings={() => undefined} onOpenWord={() => undefined} createRecognition={() => null} />,
     );
     await user.click(screen.getByRole("button", { name: "语音输入" }));
     expect(screen.getByRole("alert")).toHaveTextContent("当前浏览器不支持语音识别");
@@ -61,7 +67,13 @@ describe("speech input", () => {
     unmount();
 
     const fake = installFake();
-    render(<TranslatePage onOpenSettings={() => undefined} createRecognition={() => fake.controller} />);
+    render(
+      <TranslatePage
+        onOpenSettings={() => undefined}
+        onOpenWord={() => undefined}
+        createRecognition={() => fake.controller}
+      />,
+    );
     await user.click(screen.getByRole("button", { name: "语音输入" }));
     act(() => {
       fake.handlers.onError("not-allowed");

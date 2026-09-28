@@ -23,7 +23,7 @@ describe("TranslatePage", () => {
   it("shows the detected direction and opens settings when the key is missing", async () => {
     const user = userEvent.setup();
     const onOpenSettings = vi.fn();
-    render(<TranslatePage onOpenSettings={onOpenSettings} />);
+    render(<TranslatePage onOpenSettings={onOpenSettings} onOpenWord={() => undefined} />);
 
     await user.click(screen.getByRole("button", { name: "需要 API 密钥" }));
     expect(onOpenSettings).toHaveBeenCalledOnce();
@@ -41,9 +41,10 @@ describe("TranslatePage", () => {
   it("shows a sentence translation and a selectable Chinese-word candidate", async () => {
     const user = userEvent.setup();
     setApiKey("sk-test");
+    const onOpenWord = vi.fn();
     const fetchMock = mockChat({ translation: "你好，世界" });
     vi.stubGlobal("fetch", fetchMock);
-    render(<TranslatePage onOpenSettings={() => undefined} />);
+    render(<TranslatePage onOpenSettings={() => undefined} onOpenWord={onOpenWord} />);
 
     expect(screen.getByRole("button", { name: "密钥已填写" })).toBeInTheDocument();
     await user.type(screen.getByLabelText("翻译内容"), "Hello, world");
@@ -73,11 +74,23 @@ describe("TranslatePage", () => {
     expect(screen.getByText("中文 → 英文候选")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "翻译" }));
     await user.click(await screen.findByRole("button", { name: /苹果公司/ }));
-    expect(screen.getByRole("article", { name: "候选详情" })).toHaveTextContent("Apple");
-    expect(screen.getByRole("article", { name: "候选详情" })).toHaveTextContent("苹果公司");
+    expect(onOpenWord).toHaveBeenCalledWith("Apple");
 
     await user.click(screen.getByRole("button", { name: "清空" }));
     expect(screen.getByLabelText("翻译内容")).toHaveValue("");
-    expect(screen.queryByRole("article", { name: "候选详情" })).not.toBeInTheDocument();
+  });
+
+  it("opens the story card for an English word", async () => {
+    const user = userEvent.setup();
+    setApiKey("sk-test");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const onOpenWord = vi.fn();
+    render(<TranslatePage onOpenSettings={() => undefined} onOpenWord={onOpenWord} />);
+
+    await user.type(screen.getByLabelText("翻译内容"), "hello");
+    await user.click(screen.getByRole("button", { name: "翻译" }));
+    expect(onOpenWord).toHaveBeenCalledWith("hello");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
