@@ -19,4 +19,15 @@ describe("App shell", () => {
     expect(screen.getByRole("heading", { name: "设置" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "设置" })).toHaveAttribute("aria-selected", "true");
   });
+
+  it("keeps the translation draft when switching tabs", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.type(screen.getByRole("textbox", { name: "翻译内容" }), "Hello, world");
+    await user.click(screen.getByRole("tab", { name: "生词库" }));
+    await user.click(screen.getByRole("tab", { name: "翻译" }));
+
+    expect(screen.getByRole("textbox", { name: "翻译内容" })).toHaveValue("Hello, world");
+  });
 });

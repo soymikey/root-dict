@@ -12,9 +12,9 @@ export function App() {
   return (
     <div className="app">
       <main className="app-main" hidden={storyWord !== null}>
-        {tab === "translate" ? (
+        <div hidden={tab !== "translate"}>
           <TranslatePage onOpenSettings={() => setTab("settings")} onOpenWord={setStoryWord} />
-        ) : null}
+        </div>
         {tab === "vocab" ? <VocabPage onOpenWord={setStoryWord} /> : null}
         {tab === "settings" ? <SettingsPage /> : null}
       </main>
