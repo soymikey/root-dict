@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearApiKey, setApiKey } from "../lib/apiKey";
+import type { Speaker } from "../lib/pronounce";
 import { StoryPage } from "./StoryPage";
 
 const story = {
@@ -63,5 +64,20 @@ describe("StoryPage", () => {
     render(<StoryPage word="apple" onBack={() => undefined} />);
     expect(await screen.findByRole("alert")).toHaveTextContent("请先在设置中填写 API 密钥");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("marks the word while it is speaking", async () => {
+    const user = userEvent.setup();
+    setApiKey("sk-test");
+    vi.stubGlobal("fetch", mockStory());
+    const speak = vi.fn((_request, events: { onStart: () => void }) => {
+      events.onStart();
+    });
+    const speaker: Speaker = { speak, cancel: vi.fn() };
+    render(<StoryPage word="apple" onBack={() => undefined} speaker={speaker} />);
+    await screen.findByRole("region", { name: "词源" });
+    await user.click(screen.getByRole("button", { name: "朗读 apple" }));
+    expect(speak).toHaveBeenCalledWith(expect.objectContaining({ text: "apple", lang: "en" }), expect.any(Object));
+    expect(screen.getByRole("button", { name: "apple" })).toHaveAttribute("aria-pressed", "true");
   });
 });

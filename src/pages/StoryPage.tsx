@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
-import { PageHeader } from "../components/PageHeader";
+import { BackIcon, SpeakerIcon } from "../components/icons";
 import { getApiKey, hasApiKey } from "../lib/apiKey";
 import { OpenAIError } from "../lib/openai";
+import type { Speaker } from "../lib/pronounce";
 import { generateStory, type StoryPart, type WordStory } from "../lib/story";
+import { usePronunciation } from "../lib/usePronunciation";
 
 type StoryPageProps = {
   word: string;
   onBack: () => void;
+  speaker?: Speaker;
 };
 
-export function StoryPage({ word, onBack }: StoryPageProps) {
+export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
   const [story, setStory] = useState<WordStory | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [generation, setGeneration] = useState(0);
+  const { speaking, voiceError, speakText } = usePronunciation(speaker);
+  const title = story?.word ?? word;
 
   useEffect(() => {
     let cancelled = false;
@@ -49,14 +54,36 @@ export function StoryPage({ word, onBack }: StoryPageProps) {
 
   return (
     <section className="page story-page">
-      <PageHeader title={story?.word ?? word} onBack={onBack} />
+      <header className="page-header">
+        <button type="button" className="icon-button" onClick={onBack} aria-label="返回">
+          <BackIcon />
+        </button>
+        <h1>
+          <button
+            type="button"
+            className={speaking === title ? "word-hit is-speaking" : "word-hit"}
+            aria-pressed={speaking === title}
+            onClick={() => speakText(title)}
+          >
+            {title}
+          </button>
+        </h1>
+        <button type="button" className="icon-button" aria-label={`朗读 ${title}`} onClick={() => speakText(title)}>
+          <SpeakerIcon />
+        </button>
+      </header>
       {loading ? <p className="status-line">正在整理单词故事</p> : null}
       {error ? (
         <p className="alert" role="alert">
           {error}
         </p>
       ) : null}
-      {story ? <StoryBody story={story} /> : null}
+      {voiceError ? (
+        <p className="alert" role="alert">
+          {voiceError}
+        </p>
+      ) : null}
+      {story ? <StoryBody story={story} speaking={speaking} onSpeak={speakText} /> : null}
       <div className="button-row">
         <button
           type="button"
@@ -71,7 +98,15 @@ export function StoryPage({ word, onBack }: StoryPageProps) {
   );
 }
 
-function StoryBody({ story }: { story: WordStory }) {
+function StoryBody({
+  story,
+  speaking,
+  onSpeak,
+}: {
+  story: WordStory;
+  speaking: string | null;
+  onSpeak: (text: string) => void;
+}) {
   const parts = [story.morphology.prefix, story.morphology.root, story.morphology.suffix].filter(
     (part) => part.text.length > 0,
   );
@@ -130,7 +165,16 @@ function StoryBody({ story }: { story: WordStory }) {
         <h2>例句</h2>
         {story.examples.map((example) => (
           <div className="example" key={example.en}>
-            <p>{example.en}</p>
+            <p>
+              <button
+                type="button"
+                className={speaking === example.en ? "word-button is-speaking" : "word-button"}
+                aria-pressed={speaking === example.en}
+                onClick={() => onSpeak(example.en)}
+              >
+                {example.en}
+              </button>
+            </p>
             <p className="source">{example.zh}</p>
           </div>
         ))}

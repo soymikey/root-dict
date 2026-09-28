@@ -513,6 +513,71 @@ select:focus-visible {
   font-size: 0.95rem;
 }
 
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  margin-top: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.switch-row input {
+  width: 3.25rem;
+  height: 2.75rem;
+  accent-color: var(--accent);
+}
+
+.word-hit {
+  min-height: 2.75rem;
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  font-size: 2.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.sentence-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sentence-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0.2rem 0 0;
+}
+
+.word-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  margin: 0.1rem;
+  padding: 0.2rem 0.35rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.word-hit.is-speaking,
+.word-button.is-speaking {
+  background: var(--fill);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
-import { MicIcon, StopIcon } from "../components/icons";
+import { MicIcon, SpeakerIcon, StopIcon } from "../components/icons";
 import { PageHeader } from "../components/PageHeader";
 import { hasApiKey, getApiKey } from "../lib/apiKey";
 import { classifyInput } from "../lib/classify";
+import { tokenizeEnglish, type Speaker } from "../lib/pronounce";
+import { usePronunciation } from "../lib/usePronunciation";
 import {
   browserRecognition,
   speechErrorMessage,
@@ -17,9 +19,10 @@ type TranslatePageProps = {
   onOpenSettings: () => void;
   onOpenWord: (word: string) => void;
   createRecognition?: () => RecognitionController | null;
+  speaker?: Speaker;
 };
 
-export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition }: TranslatePageProps) {
+export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, speaker }: TranslatePageProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -27,6 +30,7 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition }:
   const [error, setError] = useState("");
   const [result, setResult] = useState<TranslationResult | null>(null);
   const sessionRef = useRef<RecognitionSession | null>(null);
+  const { speaking, voiceError, speakText } = usePronunciation(speaker);
   const classified = classifyInput(text);
   const keyReady = hasApiKey();
 
@@ -148,24 +152,68 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition }:
           {error}
         </p>
       ) : null}
-      {result ? <ResultView result={result} onOpenWord={onOpenWord} /> : null}
+      {voiceError ? (
+        <p className="alert" role="alert">
+          {voiceError}
+        </p>
+      ) : null}
+      {result ? (
+        <ResultView result={result} speaking={speaking} onOpenWord={onOpenWord} onSpeak={speakText} />
+      ) : null}
     </section>
   );
 }
 
 function ResultView({
   result,
+  speaking,
   onOpenWord,
+  onSpeak,
 }: {
   result: TranslationResult;
+  speaking: string | null;
   onOpenWord: (word: string) => void;
+  onSpeak: (text: string) => void;
 }) {
   if (result.kind === "sentence") {
+    const englishText = result.sourceLang === "en" ? result.source : result.translation;
+    const tokens = tokenizeEnglish(englishText);
     return (
       <article className="result">
-        <p className="result-kicker">句子</p>
-        <p className="source">{result.source}</p>
-        <p className="translation">{result.translation}</p>
+        <div className="sentence-toolbar">
+          <p className="result-kicker">句子</p>
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="朗读句子"
+            aria-pressed={speaking === englishText}
+            onClick={() => onSpeak(englishText)}
+          >
+            <SpeakerIcon />
+          </button>
+        </div>
+        {result.sourceLang === "zh" ? <p className="source">{result.source}</p> : null}
+        <p className="sentence-line">
+          {tokens.map((token, index) =>
+            token.speakable ? (
+              <button
+                key={`${token.text}-${index}`}
+                type="button"
+                className={speaking === token.text ? "word-button is-speaking" : "word-button"}
+                aria-pressed={speaking === token.text}
+                onClick={() => {
+                  onSpeak(token.text);
+                  onOpenWord(token.text);
+                }}
+              >
+                {token.text}
+              </button>
+            ) : (
+              <span key={`${token.text}-${index}`}>{token.text}</span>
+            ),
+          )}
+        </p>
+        {result.sourceLang === "en" ? <p className="translation">{result.translation}</p> : null}
       </article>
     );
   }

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { PageHeader } from "../components/PageHeader";
 import { clearApiKey, hasApiKey, setApiKey } from "../lib/apiKey";
+import { preferAmericanVoice, setPreferAmericanVoice } from "../lib/pronounce";
 
 export function SettingsPage() {
   const [draft, setDraft] = useState("");
   const [filled, setFilled] = useState(hasApiKey());
   const [message, setMessage] = useState("");
+  const [american, setAmerican] = useState(preferAmericanVoice());
 
   function saveKey() {
     const next = draft.trim();
@@ -57,6 +59,22 @@ export function SettingsPage() {
             清除密钥
           </button>
         </div>
+      </section>
+      <section className="group">
+        <h2>发音</h2>
+        <label className="switch-row">
+          <span>默认美式发音</span>
+          <input
+            type="checkbox"
+            role="switch"
+            checked={american}
+            onChange={(event) => {
+              setAmerican(event.target.checked);
+              setPreferAmericanVoice(event.target.checked);
+            }}
+          />
+        </label>
+        <p>发音使用手机系统声音。没有美式英语时会改用其他英语声音。能否离线播放，取决于设备有没有安装对应声音。</p>
       </section>
       <section className="group">
         <h2>数据与隐私</h2>

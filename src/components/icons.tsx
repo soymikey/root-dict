@@ -70,6 +70,27 @@ export function SettingsIcon(props: IconProps) {
   );
 }
 
+export function SpeakerIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path
+        d="M4.5 9.5h2.8L11 6.2v11.6L7.3 14.5H4.5v-5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 9.2a3.4 3.4 0 0 1 0 5.6M17.2 7a6 6 0 0 1 0 10"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </IconBase>
+  );
+}
+
 export function MicIcon(props: IconProps) {
   return (
     <IconBase {...props}>

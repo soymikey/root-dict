@@ -31,4 +31,16 @@ describe("SettingsPage", () => {
     expect(screen.getByRole("status")).toHaveTextContent("尚未填写");
     setItem.mockRestore();
   });
+
+  it("toggles the default American pronunciation", async () => {
+    const user = userEvent.setup();
+    localStorage.clear();
+    render(<SettingsPage />);
+    const toggle = screen.getByRole("switch", { name: "默认美式发音" });
+    expect(toggle).toBeChecked();
+    await user.click(toggle);
+    expect(toggle).not.toBeChecked();
+    expect(localStorage.getItem("dict.prefer-american")).toBe("0");
+    expect(screen.getByText(/系统声音/)).toBeInTheDocument();
+  });
 });
