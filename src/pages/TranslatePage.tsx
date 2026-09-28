@@ -3,6 +3,7 @@ import { MicIcon, SpeakerIcon, StopIcon } from "../components/icons";
 import { PageHeader } from "../components/PageHeader";
 import { hasApiKey, getApiKey } from "../lib/apiKey";
 import { classifyInput } from "../lib/classify";
+import { OfflineNotice, useOnlineStatus } from "../lib/online";
 import { tokenizeEnglish, type Speaker } from "../lib/pronounce";
 import { usePronunciation } from "../lib/usePronunciation";
 import {
@@ -20,9 +21,16 @@ type TranslatePageProps = {
   onOpenWord: (word: string) => void;
   createRecognition?: () => RecognitionController | null;
   speaker?: Speaker;
+  online?: boolean;
 };
 
-export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, speaker }: TranslatePageProps) {
+export function TranslatePage({
+  onOpenSettings,
+  onOpenWord,
+  createRecognition,
+  speaker,
+  online,
+}: TranslatePageProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -31,8 +39,11 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, s
   const [result, setResult] = useState<TranslationResult | null>(null);
   const sessionRef = useRef<RecognitionSession | null>(null);
   const { speaking, voiceError, speakText } = usePronunciation(speaker);
+  const liveOnline = useOnlineStatus();
+  const isOnline = online ?? liveOnline;
   const classified = classifyInput(text);
   const keyReady = hasApiKey();
+  const needsNetwork = classified.kind === "zh-word" || classified.kind === "zh-sentence" || classified.kind === "en-sentence";
 
   function toggleListening() {
     if (listening) {
@@ -74,6 +85,10 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, s
       setError("请输入要翻译的内容");
       return;
     }
+    if (!isOnline && classified.kind !== "en-word") {
+      setError("离线时不能生成新翻译");
+      return;
+    }
     if (classified.kind === "en-word") {
       onOpenWord(classified.text);
       return;
@@ -106,6 +121,7 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, s
           </button>
         }
       />
+      <OfflineNotice online={isOnline} />
       <div className="composer">
         <label>
           <span className="visually-hidden">翻译内容</span>
@@ -143,7 +159,12 @@ export function TranslatePage({ onOpenSettings, onOpenWord, createRecognition, s
         <button type="button" className="button secondary" onClick={clear}>
           清空
         </button>
-        <button type="button" className="button primary" onClick={translate} disabled={loading}>
+        <button
+          type="button"
+          className="button primary"
+          onClick={translate}
+          disabled={loading || (!isOnline && needsNetwork)}
+        >
           {loading ? "翻译中" : "翻译"}
         </button>
       </div>

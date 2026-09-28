@@ -611,6 +611,12 @@ select:focus-visible {
   gap: 0.5rem;
 }
 
+.offline-banner {
+  margin: 0 0 0.85rem;
+  color: var(--secondary);
+  font-size: 0.95rem;
+}
+
 .vocab-actions select {
   min-height: 2.75rem;
   min-width: 6.5rem;

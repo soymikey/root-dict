@@ -6,20 +6,24 @@ import type { Speaker } from "../lib/pronounce";
 import { generateStory, type StoryPart, type WordStory } from "../lib/story";
 import { usePronunciation } from "../lib/usePronunciation";
 import { getSavedWord, saveWord, updateSavedStory } from "../lib/vocab";
+import { OfflineNotice, useOnlineStatus } from "../lib/online";
 
 type StoryPageProps = {
   word: string;
   onBack: () => void;
   speaker?: Speaker;
+  online?: boolean;
 };
 
-export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
+export function StoryPage({ word, onBack, speaker, online }: StoryPageProps) {
   const [story, setStory] = useState<WordStory | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [generation, setGeneration] = useState(0);
   const [saved, setSaved] = useState(false);
   const { speaking, voiceError, speakText } = usePronunciation(speaker);
+  const liveOnline = useOnlineStatus();
+  const isOnline = online ?? liveOnline;
   const title = story?.word ?? word;
 
   useEffect(() => {
@@ -37,6 +41,13 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
           setLoading(false);
           return;
         }
+      }
+      if (!isOnline) {
+        if (!cancelled) {
+          setError("离线时不能生成新的单词故事");
+          setLoading(false);
+        }
+        return;
       }
       if (!hasApiKey()) {
         if (!cancelled) {
@@ -73,7 +84,7 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [word, generation]);
+  }, [word, generation, isOnline]);
 
   async function persist() {
     if (!story || saved) {
@@ -105,6 +116,7 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
           <SpeakerIcon />
         </button>
       </header>
+      <OfflineNotice online={isOnline} />
       {loading ? <p className="status-line">正在整理单词故事</p> : null}
       {error ? (
         <p className="alert" role="alert">
@@ -125,7 +137,7 @@ export function StoryPage({ word, onBack, speaker }: StoryPageProps) {
           type="button"
           className="button secondary"
           onClick={() => setGeneration((value) => value + 1)}
-          disabled={loading || !hasApiKey()}
+          disabled={loading || !hasApiKey() || !isOnline}
         >
           重新生成
         </button>

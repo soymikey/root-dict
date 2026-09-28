@@ -43,4 +43,18 @@ describe("SettingsPage", () => {
     expect(localStorage.getItem("dict.prefer-american")).toBe("0");
     expect(screen.getByText(/系统声音/)).toBeInTheDocument();
   });
+
+  it("offers installation and explains the home-screen fallback", async () => {
+    const user = userEvent.setup();
+    render(<SettingsPage />);
+    expect(screen.getByText(/添加到主屏幕/)).toBeInTheDocument();
+
+    const prompt = vi.fn().mockResolvedValue(undefined);
+    const event = new Event("beforeinstallprompt", { cancelable: true });
+    Object.assign(event, { prompt });
+    window.dispatchEvent(event);
+
+    await user.click(await screen.findByRole("button", { name: "安装到主屏幕" }));
+    expect(prompt).toHaveBeenCalledOnce();
+  });
 });

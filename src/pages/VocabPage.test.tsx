@@ -53,6 +53,6 @@ describe("VocabPage", () => {
 
     await user.click(screen.getByRole("button", { name: "删除 apple" }));
     await user.click(screen.getByRole("button", { name: "确认删除 apple" }));
-    expect(screen.getByText("还没有保存的单词。")).toBeInTheDocument();
+    expect(await screen.findByText("还没有保存的单词。")).toBeInTheDocument();
   });
 });

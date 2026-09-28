@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "../components/PageHeader";
+import { OfflineNotice, useOnlineStatus } from "../lib/online";
 import { deleteSavedWord, listSavedWords, setSavedMastery, type Mastery, type SavedWord } from "../lib/vocab";
 
 const filters: { id: Mastery | "all"; label: string }[] = [
@@ -18,6 +19,7 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Mastery | "all">("all");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const online = useOnlineStatus();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +58,7 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
   return (
     <section className="page" id="panel-vocab" role="tabpanel" aria-labelledby="tab-vocab">
       <PageHeader title="生词库" />
+      <OfflineNotice online={online} />
       <label className="field">
         <span className="visually-hidden">搜索生词</span>
         <input
