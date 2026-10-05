@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearApiKey, getApiKey } from "../lib/apiKey";
 import { SettingsPage } from "./SettingsPage";
 
@@ -8,6 +8,25 @@ describe("SettingsPage", () => {
   beforeEach(() => {
     clearApiKey();
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("shows an error when storage is blocked", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    render(<SettingsPage />);
+
+    await user.type(screen.getByLabelText("API 密钥"), "sk-live");
+    await user.click(screen.getByRole("button", { name: "保存密钥" }));
+
+    expect(getApiKey()).toBe("");
+    expect(screen.getByRole("status")).toHaveTextContent("无法写入本机存储");
+    expect(screen.getByRole("status")).toHaveTextContent("尚未填写");
   });
 
   it("stores a key in localStorage and explains the privacy risk", async () => {

@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { MicIcon, SpeakerIcon, StopIcon } from "../components/icons";
 import { PageHeader } from "../components/PageHeader";
-import { hasApiKey, getApiKey } from "../lib/apiKey";
+import { getApiKey, hasApiKey } from "../lib/apiKey";
+import { useApiKey } from "../lib/useApiKey";
 import { classifyInput } from "../lib/classify";
 import { OfflineNotice, useOnlineStatus } from "../lib/online";
 import { tokenizeEnglish, type Speaker } from "../lib/pronounce";
@@ -42,7 +43,7 @@ export function TranslatePage({
   const liveOnline = useOnlineStatus();
   const isOnline = online ?? liveOnline;
   const classified = classifyInput(text);
-  const keyReady = hasApiKey();
+  const keyReady = useApiKey();
   const needsNetwork = classified.kind === "zh-word" || classified.kind === "zh-sentence" || classified.kind === "en-sentence";
 
   function toggleListening() {

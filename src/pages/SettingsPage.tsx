@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "../components/PageHeader";
-import { clearApiKey, hasApiKey, setApiKey } from "../lib/apiKey";
+import { apiKeySaveErrorMessage, clearApiKey, setApiKey } from "../lib/apiKey";
+import { useApiKey } from "../lib/useApiKey";
 import { preferAmericanVoice, setPreferAmericanVoice } from "../lib/pronounce";
 
 type InstallPrompt = Event & { prompt: () => Promise<void> };
 
 export function SettingsPage() {
   const [draft, setDraft] = useState("");
-  const [filled, setFilled] = useState(hasApiKey());
+  const keyReady = useApiKey();
   const [message, setMessage] = useState("");
   const [american, setAmerican] = useState(preferAmericanVoice());
   const [installPrompt, setInstallPrompt] = useState<InstallPrompt | null>(null);
@@ -30,21 +31,18 @@ export function SettingsPage() {
   }
 
   function saveKey() {
-    const next = draft.trim();
-    if (!next) {
-      setMessage("请输入 API 密钥。");
+    const result = setApiKey(draft);
+    if (!result.ok) {
+      setMessage(apiKeySaveErrorMessage(result.reason));
       return;
     }
-    setApiKey(next);
     setDraft("");
-    setFilled(true);
     setMessage("密钥已保存到本机。");
   }
 
   function clearKey() {
     clearApiKey();
     setDraft("");
-    setFilled(false);
     setMessage("密钥已清除。");
   }
 
@@ -68,7 +66,7 @@ export function SettingsPage() {
           />
         </label>
         <p className="status-line" role="status">
-          {filled ? "已保存到本机" : "尚未填写"}
+          {keyReady ? "已保存到本机" : "尚未填写"}
           {message ? `。${message}` : ""}
         </p>
         <div className="button-row">
