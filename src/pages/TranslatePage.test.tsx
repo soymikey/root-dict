@@ -20,20 +20,17 @@ describe("TranslatePage", () => {
     clearApiKey();
   });
 
-  it("shows the detected direction and opens settings when the key is missing", async () => {
+  it("opens settings when the key is missing", async () => {
     const user = userEvent.setup();
     const onOpenSettings = vi.fn();
     render(<TranslatePage onOpenSettings={onOpenSettings} onOpenWord={() => undefined} />);
 
     await user.click(screen.getByRole("button", { name: "需要 API 密钥" }));
     expect(onOpenSettings).toHaveBeenCalledOnce();
+    expect(screen.queryByText("请输入中文或英文")).not.toBeInTheDocument();
+    expect(screen.queryByText("英文 → 中文")).not.toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("翻译内容"), "hello");
-    expect(screen.getByText("英文单词 → 中文")).toBeInTheDocument();
-    await user.clear(screen.getByLabelText("翻译内容"));
     await user.type(screen.getByLabelText("翻译内容"), "Hello, world");
-    expect(screen.getByText("英文 → 中文")).toBeInTheDocument();
-
     await user.click(screen.getByRole("button", { name: "翻译" }));
     expect(screen.getByRole("alert")).toHaveTextContent("请先在设置中填写 API 密钥");
   });
@@ -46,7 +43,8 @@ describe("TranslatePage", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<TranslatePage onOpenSettings={() => undefined} onOpenWord={onOpenWord} />);
 
-    expect(screen.getByRole("button", { name: "密钥已填写" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "语音语言" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "需要 API 密钥" })).not.toBeInTheDocument();
     await user.type(screen.getByLabelText("翻译内容"), "Hello, world");
     await user.click(screen.getByRole("button", { name: "翻译" }));
     expect(await screen.findByText("你好，世界")).toBeInTheDocument();
@@ -71,7 +69,6 @@ describe("TranslatePage", () => {
     });
     await user.clear(screen.getByLabelText("翻译内容"));
     await user.type(screen.getByLabelText("翻译内容"), "苹果");
-    expect(screen.getByText("中文 → 英文候选")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "翻译" }));
     await user.click(await screen.findByRole("button", { name: /苹果公司/ }));
     expect(onOpenWord).toHaveBeenCalledWith("Apple");

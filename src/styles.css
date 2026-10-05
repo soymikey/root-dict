@@ -305,7 +305,7 @@ select:focus-visible {
   width: 100%;
   min-height: 8.5rem;
   margin-top: 0.35rem;
-  padding: 0.9rem 3.4rem 0.9rem 0.9rem;
+  padding: 0.9rem 3.4rem 2.6rem 0.9rem;
   border: 0;
   border-radius: 0.9rem;
   background: var(--surface);
@@ -313,6 +313,29 @@ select:focus-visible {
   resize: vertical;
   font-size: 1.0625rem;
   line-height: 1.45;
+}
+
+.clear-button {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.45rem;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0.2rem 0.45rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.clear-button:disabled {
+  opacity: 0.35;
+}
+
+.translate-row {
+  justify-content: flex-end;
 }
 
 .mic-button {
@@ -362,10 +385,16 @@ select:focus-visible {
   color: var(--text);
 }
 
-.direction {
-  margin: 0.75rem 0 0;
-  color: var(--secondary);
-  font-size: 0.95rem;
+.segmented.compact {
+  margin-top: 0;
+  gap: 0.2rem;
+}
+
+.segmented.compact button {
+  min-width: 2.25rem;
+  min-height: 2rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8125rem;
 }
 
 .alert {

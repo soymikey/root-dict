@@ -116,9 +116,13 @@ export function TranslatePage({
       <PageHeader
         title="翻译"
         trailing={
-          <button type="button" className="text-button" onClick={onOpenSettings}>
-            {keyReady ? "密钥已填写" : "需要 API 密钥"}
-          </button>
+          keyReady ? (
+            <SpeechLangSwitch speechLang={speechLang} onChange={setSpeechLang} />
+          ) : (
+            <button type="button" className="text-button" onClick={onOpenSettings}>
+              需要 API 密钥
+            </button>
+          )
         }
       />
       <OfflineNotice online={isOnline} />
@@ -140,25 +144,16 @@ export function TranslatePage({
         >
           {listening ? <StopIcon /> : <MicIcon />}
         </button>
-      </div>
-      <div className="segmented" role="group" aria-label="语音语言">
-        <button type="button" aria-pressed={speechLang === "zh-CN"} onClick={() => setSpeechLang("zh-CN")}>
-          中文
-        </button>
-        <button type="button" aria-pressed={speechLang === "en-US"} onClick={() => setSpeechLang("en-US")}>
-          English
+        <button type="button" className="clear-button" onClick={clear} disabled={text.length === 0 && !result}>
+          清空
         </button>
       </div>
-      <p className="direction">{classified.direction}</p>
       {listening ? (
         <p className="status-line" role="status">
           正在聆听
         </p>
       ) : null}
-      <div className="button-row">
-        <button type="button" className="button secondary" onClick={clear}>
-          清空
-        </button>
+      <div className="button-row translate-row">
         <button
           type="button"
           className="button primary"
@@ -182,6 +177,25 @@ export function TranslatePage({
         <ResultView result={result} speaking={speaking} onOpenWord={onOpenWord} onSpeak={speakText} />
       ) : null}
     </section>
+  );
+}
+
+function SpeechLangSwitch({
+  speechLang,
+  onChange,
+}: {
+  speechLang: SpeechLang;
+  onChange: (lang: SpeechLang) => void;
+}) {
+  return (
+    <div className="segmented compact" role="group" aria-label="语音语言">
+      <button type="button" aria-pressed={speechLang === "zh-CN"} onClick={() => onChange("zh-CN")}>
+        中文
+      </button>
+      <button type="button" aria-pressed={speechLang === "en-US"} onClick={() => onChange("en-US")}>
+        EN
+      </button>
+    </div>
   );
 }
 

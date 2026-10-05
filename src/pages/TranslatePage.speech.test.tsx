@@ -1,6 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { clearApiKey, setApiKey } from "../lib/apiKey";
 import type { RecognitionController, RecognitionHandlers } from "../lib/speech";
 import { TranslatePage } from "./TranslatePage";
 
@@ -26,8 +27,13 @@ function installFake() {
 }
 
 describe("speech input", () => {
+  afterEach(() => {
+    clearApiKey();
+  });
+
   it("writes the transcript into the field and waits for the user to translate", async () => {
     const user = userEvent.setup();
+    setApiKey("sk-test");
     const fake = installFake();
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
@@ -39,7 +45,7 @@ describe("speech input", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "English" }));
+    await user.click(screen.getByRole("button", { name: "EN" }));
     await user.click(screen.getByRole("button", { name: "语音输入" }));
     expect(fake.handlers.lang).toBe("en-US");
     expect(screen.getByRole("status")).toHaveTextContent("正在聆听");
