@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "fake-indexeddb/auto";
@@ -26,6 +26,13 @@ const story = parseStory(
   "apple",
 );
 
+function swipeRowOpen(word: string) {
+  const panel = screen.getByTestId(`vocab-swipe-panel-${word}`);
+  fireEvent.pointerDown(panel, { clientX: 220, pointerId: 1, pointerType: "touch", isPrimary: true });
+  fireEvent.pointerMove(panel, { clientX: 120, pointerId: 1, pointerType: "touch", isPrimary: true });
+  fireEvent.pointerUp(panel, { clientX: 120, pointerId: 1, pointerType: "touch", isPrimary: true });
+}
+
 describe("VocabPage", () => {
   beforeEach(async () => {
     const request = indexedDB.deleteDatabase("root-dict");
@@ -35,7 +42,7 @@ describe("VocabPage", () => {
     });
   });
 
-  it("searches, marks a word mastered, and deletes it", async () => {
+  it("searches, marks a word mastered, and deletes it with swipe actions", async () => {
     const user = userEvent.setup();
     const onOpenWord = vi.fn();
     await saveWord(story);
@@ -51,8 +58,18 @@ describe("VocabPage", () => {
     await user.selectOptions(screen.getByLabelText("apple 的学习状态"), "mastered");
     await waitFor(() => expect(screen.getByLabelText("apple 的学习状态")).toHaveValue("mastered"));
 
-    await user.click(screen.getByRole("button", { name: "删除 apple" }));
-    await user.click(screen.getByRole("button", { name: "确认删除 apple" }));
+    swipeRowOpen("apple");
+    await user.click(await screen.findByRole("button", { name: "删除" }, { timeout: 2000 }));
+    expect(screen.getByRole("button", { name: "取消" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "确认删除" }));
     expect(await screen.findByText("还没有保存的单词。")).toBeInTheDocument();
+
+    await saveWord(story);
+    render(<VocabPage onOpenWord={onOpenWord} />);
+    await screen.findByRole("button", { name: "apple" });
+    swipeRowOpen("apple");
+    await user.click(await screen.findByRole("button", { name: "删除" }, { timeout: 2000 }));
+    await user.click(screen.getByRole("button", { name: "取消" }));
+    expect(screen.queryByRole("button", { name: "确认删除" })).not.toBeInTheDocument();
   });
 });

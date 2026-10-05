@@ -128,3 +128,33 @@ export function BackIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path
+        d="M9 5.5h6M6.5 7h11M8 7v10.2a1.8 1.8 0 0 0 1.8 1.8h4.4a1.8 1.8 0 0 0 1.8-1.8V7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M10 10v5.5M14 10v5.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </IconBase>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path
+        d="m8.2 8.2 7.6 7.6M15.8 8.2l-7.6 7.6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </IconBase>
+  );
+}

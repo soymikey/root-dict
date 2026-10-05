@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { VocabSwipeRow } from "../components/VocabSwipeRow";
 import { PageHeader } from "../components/PageHeader";
 import { OfflineNotice, useOnlineStatus } from "../lib/online";
 import { deleteSavedWord, listSavedWords, setSavedMastery, type Mastery, type SavedWord } from "../lib/vocab";
@@ -18,6 +19,7 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
   const [words, setWords] = useState<SavedWord[]>([]);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Mastery | "all">("all");
+  const [openRowId, setOpenRowId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const online = useOnlineStatus();
 
@@ -33,6 +35,11 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
     };
   }, []);
 
+  useEffect(() => {
+    setOpenRowId(null);
+    setPendingDelete(null);
+  }, [query, filter]);
+
   const needle = query.trim().toLowerCase();
   const visible = words.filter((item) => {
     const matchesFilter = filter === "all" || item.mastery === filter;
@@ -45,13 +52,30 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
     setWords((current) => current.map((word) => (word.id === item.id ? { ...word, mastery } : word)));
   }
 
-  async function remove(item: SavedWord) {
-    if (pendingDelete !== item.id) {
-      setPendingDelete(item.id);
-      return;
-    }
+  function openRow(id: string) {
+    setOpenRowId(id);
+    setPendingDelete(null);
+  }
+
+  function closeRow() {
+    setOpenRowId(null);
+    setPendingDelete(null);
+  }
+
+  function requestDelete(id: string) {
+    setOpenRowId(id);
+    setPendingDelete(id);
+  }
+
+  function cancelDelete() {
+    setPendingDelete(null);
+    setOpenRowId(null);
+  }
+
+  async function confirmDelete(item: SavedWord) {
     await deleteSavedWord(item.id);
     setPendingDelete(null);
+    setOpenRowId(null);
     setWords((current) => current.filter((word) => word.id !== item.id));
   }
 
@@ -80,28 +104,19 @@ export function VocabPage({ onOpenWord }: VocabPageProps) {
       {words.length > 0 && visible.length === 0 ? <p className="empty">没有匹配的单词。</p> : null}
       <ul className="vocab-list">
         {visible.map((item) => (
-          <li key={item.id} className="vocab-row">
-            <button type="button" className="vocab-open" onClick={() => onOpenWord(item.word)}>
-              {item.word}
-            </button>
-            <p>
-              {item.story.pos} · {item.story.gloss}
-            </p>
-            <div className="vocab-actions">
-              <select
-                aria-label={`${item.word} 的学习状态`}
-                value={item.mastery}
-                onChange={(event) => void changeMastery(item, event.target.value as Mastery)}
-              >
-                <option value="new">未学习</option>
-                <option value="learning">学习中</option>
-                <option value="mastered">已掌握</option>
-              </select>
-              <button type="button" className="button secondary" onClick={() => void remove(item)}>
-                {pendingDelete === item.id ? `确认删除 ${item.word}` : `删除 ${item.word}`}
-              </button>
-            </div>
-          </li>
+          <VocabSwipeRow
+            key={item.id}
+            item={item}
+            isOpen={openRowId === item.id}
+            isPendingDelete={pendingDelete === item.id}
+            onOpen={() => openRow(item.id)}
+            onClose={closeRow}
+            onRequestDelete={() => requestDelete(item.id)}
+            onCancelDelete={cancelDelete}
+            onConfirmDelete={() => void confirmDelete(item)}
+            onOpenWord={onOpenWord}
+            onChangeMastery={(mastery) => void changeMastery(item, mastery)}
+          />
         ))}
       </ul>
     </section>
