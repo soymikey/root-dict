@@ -1,17 +1,22 @@
-let apiKey = "";
+const STORAGE_KEY = "dict.openai-key";
 
 export function setApiKey(value: string) {
-  apiKey = value.trim();
+  const trimmed = value.trim();
+  if (trimmed) {
+    localStorage.setItem(STORAGE_KEY, trimmed);
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 export function getApiKey() {
-  return apiKey;
+  return localStorage.getItem(STORAGE_KEY) ?? "";
 }
 
 export function hasApiKey() {
-  return apiKey.length > 0;
+  return getApiKey().length > 0;
 }
 
 export function clearApiKey() {
-  apiKey = "";
+  localStorage.removeItem(STORAGE_KEY);
 }

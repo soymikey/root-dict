@@ -1,27 +1,27 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { clearApiKey, getApiKey, hasApiKey, setApiKey } from "./apiKey";
 
 describe("apiKey", () => {
   beforeEach(() => {
-    clearApiKey();
     localStorage.clear();
+    clearApiKey();
   });
 
-  it("keeps the key in memory and removes it when cleared", () => {
+  it("persists the key in localStorage and removes it when cleared", () => {
     expect(hasApiKey()).toBe(false);
     setApiKey("  sk-test  ");
     expect(getApiKey()).toBe("sk-test");
+    expect(localStorage.getItem("dict.openai-key")).toBe("sk-test");
     expect(hasApiKey()).toBe(true);
     clearApiKey();
     expect(getApiKey()).toBe("");
+    expect(localStorage.getItem("dict.openai-key")).toBeNull();
     expect(hasApiKey()).toBe(false);
   });
 
-  it("does not write the key to localStorage", () => {
-    const setItem = vi.spyOn(Storage.prototype, "setItem");
-    setApiKey("sk-secret");
-    expect(setItem).not.toHaveBeenCalled();
-    expect(localStorage.length).toBe(0);
-    setItem.mockRestore();
+  it("reads a saved key after reload", () => {
+    localStorage.setItem("dict.openai-key", "sk-reload");
+    expect(getApiKey()).toBe("sk-reload");
+    expect(hasApiKey()).toBe(true);
   });
 });
