@@ -13,9 +13,9 @@ export default defineConfig({
       injectRegister: "auto",
       includeAssets: ["icons/icon-192.png", "icons/icon-512.png"],
       manifest: {
-        name: "中英理解式词典",
-        short_name: "理解词典",
-        description: "用词根、词源和记忆联想理解英文单词",
+        name: "词根词典",
+        short_name: "词根词典",
+        description: "通过词根、构词和记忆联想理解英文单词",
         lang: "zh-CN",
         start_url: "/",
         scope: "/",

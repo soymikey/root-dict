@@ -24,7 +24,7 @@ export type CandidatesResult = {
 
 export type TranslationResult = SentenceResult | CandidatesResult;
 
-const SYSTEM = "你是中英理解式词典的翻译模块。只输出符合 schema 的 JSON。释义使用简体中文。";
+const SYSTEM = "你是词根词典的翻译模块。只输出符合 schema 的 JSON。释义使用简体中文。";
 
 const sentenceSchema = {
   type: "object",

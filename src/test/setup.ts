@@ -6,7 +6,7 @@ import "@testing-library/jest-dom/vitest";
 afterEach(async () => {
   cleanup();
   await new Promise((resolve) => {
-    const request = indexedDB.deleteDatabase("understanding-dictionary");
+    const request = indexedDB.deleteDatabase("root-dict");
     request.onsuccess = () => resolve(undefined);
     request.onerror = () => resolve(undefined);
     request.onblocked = () => resolve(undefined);

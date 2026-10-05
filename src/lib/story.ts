@@ -119,7 +119,7 @@ const storySchema = {
 };
 
 const SYSTEM = [
-  "你是中英理解式词典。只输出符合 schema 的 JSON。",
+  "你是词根词典。只输出符合 schema 的 JSON。",
   "词源必须区分已证实和不确定。无法确认时 etymologyConfidence 必须是 uncertain，并在 etymologyOrigin 里说明不确定什么。",
   "禁止编造年代、文献、人物或虚假词源。",
   "mnemonic 只是帮助记忆的联想，不能写成历史事实，也不能复述词源。",

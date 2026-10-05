@@ -11,7 +11,7 @@ export type SavedWord = {
   updatedAt: number;
 };
 
-const DB_NAME = "understanding-dictionary";
+const DB_NAME = "root-dict";
 const STORE = "words";
 
 export function wordId(word: string) {

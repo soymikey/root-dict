@@ -28,7 +28,7 @@ const story = parseStory(
 
 describe("VocabPage", () => {
   beforeEach(async () => {
-    const request = indexedDB.deleteDatabase("understanding-dictionary");
+    const request = indexedDB.deleteDatabase("root-dict");
     await new Promise((resolve) => {
       request.onsuccess = () => resolve(undefined);
       request.onerror = () => resolve(undefined);
