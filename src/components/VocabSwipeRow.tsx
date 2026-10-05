@@ -147,9 +147,8 @@ export function VocabSwipeRow({
               value={item.mastery}
               onChange={(event) => onChangeMastery(event.target.value as Mastery)}
             >
-              <option value="new">未学习</option>
-              <option value="learning">学习中</option>
-              <option value="mastered">已掌握</option>
+                <option value="new">未学习</option>
+                <option value="mastered">已掌握</option>
             </select>
           </div>
         </div>

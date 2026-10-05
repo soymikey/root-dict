@@ -1,6 +1,14 @@
 import type { WordStory } from "./story";
 
-export type Mastery = "new" | "learning" | "mastered";
+export type Mastery = "new" | "mastered";
+
+function normalizeMastery(value: unknown): Mastery {
+  return value === "mastered" ? "mastered" : "new";
+}
+
+function normalizeRecord(record: SavedWord): SavedWord {
+  return { ...record, mastery: normalizeMastery(record.mastery) };
+}
 
 export type SavedWord = {
   id: string;
@@ -58,12 +66,12 @@ function requestResult<T>(request: IDBRequest<T>) {
 
 export async function getSavedWord(word: string) {
   const record = await withStore<SavedWord | undefined>("readonly", (store) => store.get(wordId(word)));
-  return record ?? null;
+  return record ? normalizeRecord(record) : null;
 }
 
 export async function listSavedWords() {
   const records = await withStore<SavedWord[]>("readonly", (store) => store.getAll());
-  return records.sort((left, right) => right.savedAt - left.savedAt);
+  return records.map(normalizeRecord).sort((left, right) => right.savedAt - left.savedAt);
 }
 
 export async function saveWord(story: WordStory): Promise<"saved" | "duplicate"> {

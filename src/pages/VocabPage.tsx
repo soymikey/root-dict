@@ -7,7 +7,6 @@ import { deleteSavedWord, listSavedWords, setSavedMastery, type Mastery, type Sa
 const filters: { id: Mastery | "all"; label: string }[] = [
   { id: "all", label: "全部" },
   { id: "new", label: "未学习" },
-  { id: "learning", label: "学习中" },
   { id: "mastered", label: "已掌握" },
 ];
 
